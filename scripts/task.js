@@ -1,6 +1,8 @@
 let taskBox = document.querySelector(".taskBox");
 let subTaskDiv = document.querySelector(".subTask");
 
+
+
 let obtenerTareas = (categoryID) => {
     let url = `http://127.0.0.1:5000/tasks/?category_id=${categoryID}`;
     fetch(url)
@@ -17,44 +19,8 @@ let obtenerTareas = (categoryID) => {
             taskText.appendChild(document.createElement("br"));
             taskText.appendChild(dueTaskSpan);
             taskBox.appendChild(taskText);
+            taskText.setAttribute("data-task-id", tarea.task_id);          
 
-            tarea.task_items.map((subTarea, index) => {
-                let subTaskCheckbox = document.createElement("input");
-                subTaskCheckbox.type = "checkbox";
-                subTaskCheckbox.classList.add("subTaskCheckbox");
-                subTaskCheckbox.id = `subTaskCheckbox-${index}`;
-                subTaskCheckbox.dataset.subTareaId = subTarea.ti_id;
-                subTaskDiv.appendChild(subTaskCheckbox);
-
-                let subTaskLabel = document.createElement("label");
-                subTaskLabel.classList.add("subTaskLabel");
-                subTaskLabel.textContent = subTarea.item;
-                subTaskLabel.setAttribute("for", `subTaskCheckbox-${index}`);
-                subTaskDiv.appendChild(subTaskLabel);
-
-                subTaskCheckbox.addEventListener("change", (event) => {
-                    const subTareaID = event.target.dataset.subTareaId;
-                    if (event.target.checked) {
-                        marcarSubTarea(subTareaID, true);
-                    } else {
-                        marcarSubTarea(subTareaID, false);
-                    }
-                });
-
-                subTaskDiv.appendChild(document.createElement("br"));
-                subTaskDiv.appendChild(document.createElement("br"));
-            });
-
-            // Crear botón para añadir sub-tarea para esta tarea específica
-            let addSubTaskBtnForThisTask = document.createElement("button");
-            addSubTaskBtnForThisTask.textContent = "Añadir sub-tarea";
-            addSubTaskBtnForThisTask.dataset.taskId = tarea.task_id;
-            taskBox.appendChild(addSubTaskBtnForThisTask);
-
-            addSubTaskBtnForThisTask.addEventListener("click", () => {
-                const taskIdForThisButton = addSubTaskBtnForThisTask.dataset.taskId;
-                addSubTask(taskIdForThisButton);
-            });
         });
 
         // Añadir event listener al botón general para añadir tarea
@@ -92,23 +58,38 @@ if (categoryID) {
 } else {
     console.log("No se ha proporcionado un ID de categoría.");
 }
-
 document.addEventListener("DOMContentLoaded", () => {
-    let taskBox = document.querySelector(".taskBox");
     let modal = document.querySelector(".modal-container");
     let closeBtn = document.querySelector(".closeBtn");
-    modal.style.display = "none";
+    let subTaskBtn = document.querySelector(".addSubTask")
 
-    taskBox.addEventListener("click", (event) => {
+    modal.style.display = "none";
+    
+    let currentTaskID = null; // Variable para almacenar el ID de la tarea actual
+
+    document.addEventListener("click", (event) => {
         if (event.target.classList.contains("taskText")) {
             modal.style.display = "flex";
+            catchSubTask(event.target);
+            currentTaskID = event.target.dataset.taskId;
+        }   
+    });
+
+    subTaskBtn.addEventListener("click", () => {
+        if (currentTaskID !== null) {
+            addSubTask(currentTaskID);
+        } else {
+            console.error("No se ha seleccionado una tarea.");
         }
     });
 
     closeBtn.addEventListener("click", () => {
         modal.style.display = "none";
+        currentTaskID = null; // Reiniciar el ID de la tarea actual
+        subTaskDiv.innerHTML = ''; // Limpiar el contenido de subTaskDiv
     });
 });
+
 
 let addSubTask = (id) => {
     let subTask = prompt("Ingrese el nombre de la tarea:");
@@ -135,6 +116,8 @@ let addSubTask = (id) => {
     } else {
         alert("El nombre de la tarea no puede estar vacío.");
     }
+
+    location.reload();  
 }
 
 let addTask = (categoryID) => {
@@ -158,3 +141,46 @@ let addTask = (categoryID) => {
         console.error("Error al crear la tarea:", error);
     });
 }
+
+
+let catchSubTask = (taskTextElement) => {
+    
+    let task_id = taskTextElement.dataset.taskId;
+
+    let url = `http://127.0.0.1:5000/tasks/${task_id}`;
+    fetch(url)
+    .then(res => res.json())
+    .then(data => {
+
+        if (data.task_items.length === 0) {
+            subTaskDiv.innerHTML = '';
+            return; // Salir de la función si no hay elementos
+        }
+
+        data.task_items.map(subTarea => {
+            let subTaskCheckbox = document.createElement("input");
+            subTaskCheckbox.type = "checkbox";
+            subTaskCheckbox.classList.add("subTaskCheckbox");
+            subTaskCheckbox.dataset.subTareaId = subTarea.ti_id;
+            subTaskDiv.appendChild(subTaskCheckbox);
+
+            let subTaskLabel = document.createElement("label");
+            subTaskLabel.classList.add("subTaskLabel");
+            subTaskLabel.textContent = subTarea.item;
+            subTaskDiv.appendChild(subTaskLabel);
+
+            subTaskCheckbox.addEventListener("change", (event) => {
+                const subTareaID = event.target.dataset.subTareaId;
+                if (event.target.checked) {
+                    marcarSubTarea(subTareaID, true);
+                } else {
+                    marcarSubTarea(subTareaID, false);
+                }
+            });
+
+            subTaskDiv.appendChild(document.createElement("br"));
+            subTaskDiv.appendChild(document.createElement("br"));
+        });
+    })
+    .catch(err => console.log(err));
+};
