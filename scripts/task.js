@@ -91,10 +91,12 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 
+
 let addSubTask = (id) => {
     let subTask = prompt("Ingrese el nombre de la tarea:");
+
     if (subTask !== null && subTask.trim() !== "") {
-        let url = `http://127.0.0.1:5000/task_items/`;
+        let url = `http://127.0.0.1:5000/task_items/`; 
         fetch(url, {
             method: "POST",
             headers: {
@@ -116,8 +118,6 @@ let addSubTask = (id) => {
     } else {
         alert("El nombre de la tarea no puede estar vacío.");
     }
-
-    location.reload();  
 }
 
 let addTask = (categoryID) => {
@@ -162,6 +162,9 @@ let catchSubTask = (taskTextElement) => {
             subTaskCheckbox.type = "checkbox";
             subTaskCheckbox.classList.add("subTaskCheckbox");
             subTaskCheckbox.dataset.subTareaId = subTarea.ti_id;
+            if (subTarea.completed) {
+                subTaskCheckbox.checked = true;
+            }
             subTaskDiv.appendChild(subTaskCheckbox);
 
             let subTaskLabel = document.createElement("label");
@@ -170,6 +173,7 @@ let catchSubTask = (taskTextElement) => {
             subTaskDiv.appendChild(subTaskLabel);
 
             subTaskCheckbox.addEventListener("change", (event) => {
+                console.log(event.target.checked);
                 const subTareaID = event.target.dataset.subTareaId;
                 if (event.target.checked) {
                     marcarSubTarea(subTareaID, true);
