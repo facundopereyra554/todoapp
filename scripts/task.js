@@ -18,64 +18,55 @@ let obtenerTareas = (categoryID) => {
             taskText.appendChild(dueTaskSpan);
             taskBox.appendChild(taskText);
 
-            
-
             tarea.task_items.map((subTarea, index) => {
-            
                 let subTaskCheckbox = document.createElement("input");
                 subTaskCheckbox.type = "checkbox";
                 subTaskCheckbox.classList.add("subTaskCheckbox");
                 subTaskCheckbox.id = `subTaskCheckbox-${index}`;
                 subTaskCheckbox.dataset.subTareaId = subTarea.ti_id;
                 subTaskDiv.appendChild(subTaskCheckbox);
-            
+
                 let subTaskLabel = document.createElement("label");
                 subTaskLabel.classList.add("subTaskLabel");
                 subTaskLabel.textContent = subTarea.item;
                 subTaskLabel.setAttribute("for", `subTaskCheckbox-${index}`);
                 subTaskDiv.appendChild(subTaskLabel);
-            
+
                 subTaskCheckbox.addEventListener("change", (event) => {
                     const subTareaID = event.target.dataset.subTareaId;
                     if (event.target.checked) {
-                        marcarSubTarea(subTareaID,state=true);
-                    }else{
-                        marcarSubTarea(subTareaID,state=false);
+                        marcarSubTarea(subTareaID, true);
+                    } else {
+                        marcarSubTarea(subTareaID, false);
                     }
                 });
-            
+
                 subTaskDiv.appendChild(document.createElement("br"));
                 subTaskDiv.appendChild(document.createElement("br"));
             });
 
+            // Crear botón para añadir sub-tarea para esta tarea específica
+            let addSubTaskBtnForThisTask = document.createElement("button");
+            addSubTaskBtnForThisTask.textContent = "Añadir sub-tarea";
+            addSubTaskBtnForThisTask.dataset.taskId = tarea.task_id;
+            taskBox.appendChild(addSubTaskBtnForThisTask);
 
-            let addSubTaskBtn = document.querySelector(".addSubTask");
-            
-
-
-            addSubTaskBtn.addEventListener("click", () => {
-                addSubTask(tarea.task_id)
+            addSubTaskBtnForThisTask.addEventListener("click", () => {
+                const taskIdForThisButton = addSubTaskBtnForThisTask.dataset.taskId;
+                addSubTask(taskIdForThisButton);
             });
-
-            let addTaskBtn = document.querySelector(".addTask")
-        
-            addTaskBtn.addEventListener("click", ()=>{
-                addTask(categoryID)
-            })
-
-
         });
 
-
+        // Añadir event listener al botón general para añadir tarea
+        let addTaskBtn = document.querySelector(".addTask");
+        addTaskBtn.addEventListener("click", () => {
+            addTask(categoryID);
+        });
     })
     .catch(err => console.log(err));
 };
 
-
-
-
-
-function marcarSubTarea(subTareaID,state) {
+function marcarSubTarea(subTareaID, state) {
     const url = `http://127.0.0.1:5000/task_items/${subTareaID}`;
     fetch(url, {
         method: "PUT",
@@ -93,25 +84,14 @@ function marcarSubTarea(subTareaID,state) {
     });
 }
 
-
-
-
-
 const urlParams = new URLSearchParams(window.location.search);
 const categoryID = urlParams.get("category_id");
-
-
-
-
 
 if (categoryID) {
     obtenerTareas(categoryID);
 } else {
     console.log("No se ha proporcionado un ID de categoría.");
 }
-
-
-
 
 document.addEventListener("DOMContentLoaded", () => {
     let taskBox = document.querySelector(".taskBox");
@@ -128,18 +108,12 @@ document.addEventListener("DOMContentLoaded", () => {
     closeBtn.addEventListener("click", () => {
         modal.style.display = "none";
     });
-
-
- 
 });
-
-
 
 let addSubTask = (id) => {
     let subTask = prompt("Ingrese el nombre de la tarea:");
-
     if (subTask !== null && subTask.trim() !== "") {
-        let url = `http://127.0.0.1:5000/task_items/`; 
+        let url = `http://127.0.0.1:5000/task_items/`;
         fetch(url, {
             method: "POST",
             headers: {
@@ -163,12 +137,8 @@ let addSubTask = (id) => {
     }
 }
 
-
-
 let addTask = (categoryID) => {
     let taskName = prompt("Ingrese el nombre de la tarea:");
-    // let taskDueDate = prompt("Ingrese la fecha de vencimiento de la tarea (dd/mm/aaaa):");
-
     fetch("http://127.0.0.1:5000/tasks/", {
         method: "POST",
         headers: {
@@ -188,10 +158,3 @@ let addTask = (categoryID) => {
         console.error("Error al crear la tarea:", error);
     });
 }
-
-
-
-
-
-
-
