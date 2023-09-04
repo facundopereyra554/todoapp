@@ -58,6 +58,8 @@ if (categoryID) {
 } else {
     console.log("No se ha proporcionado un ID de categoría.");
 }
+
+
 document.addEventListener("DOMContentLoaded", () => {
     let modal = document.querySelector(".modal-container");
     let closeBtn = document.querySelector(".closeBtn");
@@ -116,12 +118,12 @@ let addSubTask = (id) => {
     } else {
         alert("El nombre de la tarea no puede estar vacío.");
     }
-
-    location.reload();  
 }
 
 let addTask = (categoryID) => {
-    let taskName = prompt("Ingrese el nombre de la tarea:");
+    let taskName = document.querySelector(".taskName").value;
+    let taskDate = document.querySelector(".taskDate").value;
+    console.log(taskName, taskDate)
     fetch("http://127.0.0.1:5000/tasks/", {
         method: "POST",
         headers: {
@@ -129,7 +131,7 @@ let addTask = (categoryID) => {
         },
         body: JSON.stringify({
             name: taskName,
-            due_date: "2024-04-05",
+            due_date: taskDate,
             category_id: +categoryID
         })
     })
@@ -139,6 +141,7 @@ let addTask = (categoryID) => {
     })
     .catch(error => {
         console.error("Error al crear la tarea:", error);
+        alert("El nombre de la tarea y la fecha no puede estar vacío")
     });
 }
 
@@ -158,10 +161,20 @@ let catchSubTask = (taskTextElement) => {
         }
 
         data.task_items.map(subTarea => {
+
+            if(subTarea.completed){
+
+            }
+
             let subTaskCheckbox = document.createElement("input");
             subTaskCheckbox.type = "checkbox";
             subTaskCheckbox.classList.add("subTaskCheckbox");
             subTaskCheckbox.dataset.subTareaId = subTarea.ti_id;
+
+            if (subTarea.completed) {
+                subTaskCheckbox.checked = true; // Marcar el checkbox si la subtarea está completada
+            }
+
             subTaskDiv.appendChild(subTaskCheckbox);
 
             let subTaskLabel = document.createElement("label");
