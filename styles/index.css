@@ -1,5 +1,6 @@
 body{
     margin: 0;
+    background-color: rgb(51, 50, 50);
 }
 
 .todoApp-Container{
@@ -32,20 +33,21 @@ body{
 
 .taskText{
    width: 100%;
-   background-color: aquamarine;
+   background-color: rgb(68, 67, 67);
    font-size: 20px;
    font-family: 'Prompt', sans-serif;
-   margin: 10px;
+   margin: 10px 0;
    padding: 10px;
    border-radius: 20px;
-   transition: .3s;
+   transition: .5s;
    cursor: pointer;
+   color: white;
 }
 
 .categoryText{
     display: block;
     width: 100%;
-    background-color: aquamarine;
+    background-color: rgb(68, 67, 67);
     font-size: 20px;
     font-family: 'Prompt', sans-serif;
     margin: 10px;
@@ -54,20 +56,21 @@ body{
     transition: .3s;
     cursor: pointer;
     text-decoration: none;
+    color: white;
+    transition: .5s;
 }
 
-.categoryText>a:hover{
-    width: 100%;
-    background-color: rgb(109, 226, 187);
-    transition: .3s;
+.categoryText:hover{
+    background-color: aquamarine;
+    color: black;
+    transition: .5s;
 }
 
 .taskText:hover{
-    width: 100%;
-    background-color: rgb(109, 226, 187);
-    transition: .3s;
- }
- 
+    background-color: aquamarine;
+    color: black;
+    transition: .5s;
+}
 
 .dueTaskSpan{
     font-size: 15px;
@@ -78,7 +81,7 @@ body{
     z-index: 99;
     width: 500px;
     height: 500px;
-    background-color: rebeccapurple;
+    background-color:  rgb(68, 67, 67);
     padding: 10px;
     overflow-y: scroll;
 }
