@@ -1,29 +1,20 @@
+const urlParams = new URLSearchParams(window.location.search);
+const categoryID = urlParams.get("category_id");
+
 let taskBox = document.querySelector(".taskBox");
 let subTaskDiv = document.querySelector(".subTask");
 
 
 
-let obtenerTareas = (categoryID) => {
+let catchTasks = (categoryID) => {
     let url = `http://127.0.0.1:5000/tasks/?category_id=${categoryID}`;
     fetch(url)
     .then(res => res.json())
     .then(data => {
         data.map(tarea => {
-            let taskText = document.createElement("p");
-            taskText.classList.add("taskText");
-            taskText.textContent = tarea.name;
-            let dueTaskSpan = document.createElement("span");
-            let dueTask = `Fecha de Vencimiento: ${tarea.due_date}`;
-            dueTaskSpan.textContent = dueTask;
-            dueTaskSpan.classList.add("dueTaskSpan");
-            taskText.appendChild(document.createElement("br"));
-            taskText.appendChild(dueTaskSpan);
-            taskBox.appendChild(taskText);
-            taskText.setAttribute("data-task-id", tarea.task_id);          
-
+            createTaskContainer(tarea)
         });
 
-        // Añadir event listener al botón general para añadir tarea
         let addTaskBtn = document.querySelector(".addTask");
         addTaskBtn.addEventListener("click", () => {
             addTask(categoryID);
@@ -31,6 +22,20 @@ let obtenerTareas = (categoryID) => {
     })
     .catch(err => console.log(err));
 };
+
+let createTaskContainer = (tarea) =>{
+    let taskText = document.createElement("p");
+    taskText.classList.add("taskText");
+    taskText.textContent = tarea.name;
+    let dueTaskSpan = document.createElement("span");
+    let dueTask = `Fecha de Vencimiento: ${tarea.due_date}`;
+    dueTaskSpan.textContent = dueTask;
+    dueTaskSpan.classList.add("dueTaskSpan");
+    taskText.appendChild(document.createElement("br"));
+    taskText.appendChild(dueTaskSpan);
+    taskBox.appendChild(taskText);
+    taskText.setAttribute("data-task-id", tarea.task_id);   
+}
 
 function marcarSubTarea(subTareaID, state) {
     const url = `http://127.0.0.1:5000/task_items/${subTareaID}`;
@@ -50,15 +55,6 @@ function marcarSubTarea(subTareaID, state) {
     });
 }
 
-const urlParams = new URLSearchParams(window.location.search);
-const categoryID = urlParams.get("category_id");
-
-if (categoryID) {
-    obtenerTareas(categoryID);
-} else {
-    console.log("No se ha proporcionado un ID de categoría.");
-}
-
 
 document.addEventListener("DOMContentLoaded", () => {
     let modal = document.querySelector(".modal-container");
@@ -67,7 +63,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     modal.style.display = "none";
     
-    let currentTaskID = null; // Variable para almacenar el ID de la tarea actual
+    let currentTaskID = null;
 
     document.addEventListener("click", (event) => {
         if (event.target.classList.contains("taskText")) {
@@ -87,8 +83,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     closeBtn.addEventListener("click", () => {
         modal.style.display = "none";
-        currentTaskID = null; // Reiniciar el ID de la tarea actual
-        subTaskDiv.innerHTML = ''; // Limpiar el contenido de subTaskDiv
+        currentTaskID = null; 
+        subTaskDiv.innerHTML = ''; 
     });
 });
 
@@ -149,22 +145,20 @@ let addTask = (categoryID) => {
 let catchSubTask = (taskTextElement) => {
     
     let task_id = taskTextElement.dataset.taskId;
-
+    
     let url = `http://127.0.0.1:5000/tasks/${task_id}`;
     fetch(url)
     .then(res => res.json())
     .then(data => {
+        let infoTask = `${data.name} <br> ${data.creation_date}-----${data.due_date}`;
+        let detailBox = document.querySelector(".detailTask").innerHTML = infoTask;
 
         if (data.task_items.length === 0) {
             subTaskDiv.innerHTML = '';
-            return; // Salir de la función si no hay elementos
+            return;
         }
 
         data.task_items.map(subTarea => {
-
-            if(subTarea.completed){
-
-            }
 
             let subTaskCheckbox = document.createElement("input");
             subTaskCheckbox.type = "checkbox";
@@ -172,7 +166,7 @@ let catchSubTask = (taskTextElement) => {
             subTaskCheckbox.dataset.subTareaId = subTarea.ti_id;
 
             if (subTarea.completed) {
-                subTaskCheckbox.checked = true; // Marcar el checkbox si la subtarea está completada
+                subTaskCheckbox.checked = true; 
             }
 
             subTaskDiv.appendChild(subTaskCheckbox);
@@ -197,3 +191,10 @@ let catchSubTask = (taskTextElement) => {
     })
     .catch(err => console.log(err));
 };
+ 
+
+if (categoryID) {
+    catchTasks(categoryID);
+} else {
+    console.log("No se ha proporcionado un ID de categoría.");
+}
