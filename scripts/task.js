@@ -34,7 +34,7 @@ let createTaskContainer = (tarea) =>{
     taskText.appendChild(document.createElement("br"));
     taskText.appendChild(dueTaskSpan);
     taskBox.appendChild(taskText);
-    taskText.setAttribute("data-task-id", tarea.task_id);   
+    taskText.setAttribute("data-task-id", tarea.task_id);
 }
 
 function marcarSubTarea(subTareaID, state) {
@@ -149,7 +149,7 @@ let catchSubTask = (taskTextElement) => {
     fetch(url)
     .then(res => res.json())
     .then(data => {
-        let infoTask = `${data.name} <br> ${data.creation_date}-----${data.due_date}`;
+        let infoTask = `<h3>${data.name}</h3><p>Fecha de creación: ${formatDate(data.creation_date)}</p><p>Fecha límite: ${formatDate(data.due_date)}</p>`;
         let detailBox = document.querySelector(".detailTask").innerHTML = infoTask;
 
         if (data.task_items.length === 0) {
@@ -197,4 +197,20 @@ if (categoryID) {
     catchTasks(categoryID);
 } else {
     console.log("No se ha proporcionado un ID de categoría.");
+}
+
+function formatDate(inputDate) {
+    const days = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+    const months = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+    
+    const date = new Date(inputDate);
+    
+    const day = days[date.getDay()];
+    const dateNum = date.getDate();
+    const month = months[date.getMonth()];
+    const year = date.getFullYear();
+    const hours = date.getHours().toString().padStart(2, '0');
+    const minutes = date.getMinutes().toString().padStart(2, '0');
+    
+    return `${day}, ${dateNum} de ${month} ${year} ${hours}:${minutes}`;
 }
